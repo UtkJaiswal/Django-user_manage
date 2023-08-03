@@ -41,13 +41,22 @@ class LogoutView(APIView):
 
     def post(self, request):
         try:
-            refresh_token = request.data['refresh_token']
-            token = RefreshToken(refresh_token)
-            token.blacklist()
+            user = request.user
+
+            # Blacklist the access token
+            if hasattr(user, 'auth_token'):
+                access_token = AccessToken(user.auth_token.key)
+                access_token.blacklist()
+
+            # Blacklist the refresh token
+            refresh_token = RefreshToken(request.data['refresh_token'])
+            refresh_token.blacklist()
 
             return Response({'detail': 'Successfully logged out.'})
+
         except Exception as e:
             return Response({'error': 'Token is invalid or expired'}, status=400)
+
     
 class UserDetailsView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]

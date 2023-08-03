@@ -6,14 +6,21 @@ from .models import CustomUser
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+
 
 class SignUpView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [permissions.AllowAny]
 
-class LoginView(views.APIView):
-    permission_classes = [permissions.AllowAny]
+class LoginView(APIView):
+    permission_classes = [AllowAny]
 
     def post(self, request):
         email = request.data.get('email')
@@ -25,21 +32,22 @@ class LoginView(views.APIView):
 
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
 
-        return Response({'access_token': access_token})
+        return Response({'access_token': access_token, 'refresh_token': refresh_token})
 
-class LogoutView(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         try:
             refresh_token = request.data['refresh_token']
             token = RefreshToken(refresh_token)
             token.blacklist()
+
+            return Response({'detail': 'Successfully logged out.'})
         except Exception as e:
             return Response({'error': 'Token is invalid or expired'}, status=400)
-
-        return Response({'detail': 'Successfully logged out.'})
     
 class UserDetailsView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]

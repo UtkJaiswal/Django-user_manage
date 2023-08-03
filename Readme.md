@@ -4,7 +4,6 @@ Basic User Management with SignUp, Login and Logout Features
 
 ## Table of Contents
 
-- [Requirements](#requirements)
 - [Installation](#installation)
 - [Running the Development Server](#running-the-development-server)
 - [API Endpoints](#api-endpoints)

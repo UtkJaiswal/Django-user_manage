@@ -42,20 +42,33 @@ class LogoutView(APIView):
     def post(self, request):
         try:
             user = request.user
+            if user.id:
+            # authorization_header = request.META.get('HTTP_AUTHORIZATION', '')
+            # print("Auth",authorization_header)
 
-            # Blacklist the access token
-            if hasattr(user, 'auth_token'):
-                access_token = AccessToken(user.auth_token.key)
-                access_token.blacklist()
+            # Check if the header starts with 'Bearer'
+            # if authorization_header.startswith('Bearer '):
+                # Extract the token part (after 'Bearer ')
+                # token = authorization_header.split(' ')[1]
 
-            # Blacklist the refresh token
-            refresh_token = RefreshToken(request.data['refresh_token'])
-            refresh_token.blacklist()
+                # Try to find the AccessToken based on the token
+                # access_token = AccessToken.objects.get(token=token)
 
-            return Response({'detail': 'Successfully logged out.'})
+                # Blacklist the AccessToken
+                # access_token.blacklist()
+            # if hasattr(user, 'auth_token'):
+            #     access_token = AccessToken(user.auth_token.key)
+            #     access_token.blacklist()
+
+                refresh_token = RefreshToken(request.data['refresh_token'])
+                refresh_token.blacklist()
+
+                return Response({'detail': 'Successfully logged out.'})
+            return Response({"message":"Unauthorized user"},status=401)
 
         except Exception as e:
-            return Response({'error': 'Token is invalid or expired'}, status=400)
+            return Response({'error': 'Token is invalid or expired','message':str(e)}, status=400)
+        
 
     
 class UserDetailsView(views.APIView):
